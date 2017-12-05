@@ -1,0 +1,23 @@
+{
+  "name": "innoq-slide-master",
+  "version": "0.0.1",
+  "description": "innoQ-flavored slide deck for reveal.js",
+  "authors": [
+    "Roman Stranghöner <roman.stranghoener@innoq.com>",
+    "Robert Glaser <robert.glaser@innoq.com>"
+  ],
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/innoq/innoq-slide-master.git"
+  },
+  "dependencies": {
+    "underscore": "~1.6.0",
+    "express": "~4.7.2",
+    "mustache": "~0.8.2",
+    "socket.io": "~1.0.6"
+  },
+  "devDependencies": {
+    "servedir": "^1.0.0"
+  }
+}
