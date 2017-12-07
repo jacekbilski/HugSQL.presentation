@@ -254,32 +254,85 @@ Clojure:
 
 
 
+## Queries
 
 
-
-
-
-
-
-
-
-
-
-### Commands
+### Single row
 
 <br>
 
-+ `:query` or `:?` - query, returns something (default)
-+ `:execute` or `:!` - any statement
-+ `:returning-execute` or `:<!` - support for `INSERT INTO ... RETURNING`
-+ `:insert` or `:i!` - support for insert and JDBC `.getGeneratedKeys`
+SQL:
+
+```sql
+-- :name find-by-id :? :1
+SELECT *
+FROM users 
+WHERE id = :id;
+```
+
+Clojure:
+
+```clojure
+(println (users/find-by-id db {:id 1}))
+```
+
+Result:
+
+```clojure
+({:id 1, :first_name Jacek, :last_name Bilski, :registration_date #inst "2017-12-05T16:27:19.828000000-00:00"})
+```
 
 
-### Result
+### Multiple rows
 
 <br>
 
-+ `:one` or `:1` - one row as a hash-map
-+ `:many` or `:*` - many rows as a vector of hash-maps
-+ `:affected` or `:n` - number of rows affected (inserted/updated/deleted)
-+ `:raw` - passthrough an untouched result (default)
+SQL:
+
+```sql
+-- :name all-users :? :*
+SELECT *
+FROM users;
+```
+
+Clojure:
+
+```clojure
+(println (users/all-users db))
+```
+
+Result:
+
+```clojure
+({:id 1, :first_name Jacek, :last_name Bilski, :registration_date #inst "2017-12-07T22:01:06.899000000-00:00", 
+    :street nil, :zip nil, :city nil}
+{:id 2, :first_name Jacek, :last_name Bilski, :registration_date nil, 
+    :street Kreuzstr. 16, :zip 80331, :city München})
+```
+
+
+
+### Transactions
+
+<br>
+
+Second parameter can be:
+
++ db specification
++ db connection
++ db connection pool
++ transaction object
+
+<br>
+
+For example:
+
+```sql
+(clojure.java.jdbc/with-db-transaction [tx db]
+  (users/add-user tx {:first-name "Jacek", :last-name "Bilski", :registration-date nil})
+  (users/add-user tx {:first-name "Jan", :last-name "Stępień", :registration-date nil}))
+```
+
+
+
+## And many more

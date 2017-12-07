@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   city              VARCHAR(50)
 );
 
--- :name all-users :?
+-- :name all-users :? :*
 SELECT *
 FROM users;
 
