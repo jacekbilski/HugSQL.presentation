@@ -336,3 +336,28 @@ For example:
 
 
 ## And many more
+
+<br>
+
++ parameter types
++ snippets
++ clojure expressions
++ access to low level SQL
++ adapters
++ ...
+
+
+
+## About
+
+<br>
+
+Main character:
+
+HugSQL, [https://www.hugsql.org/](https://www.hugsql.org/)
+
+<br>
+
+Author:
+
+Jacek Bilski, [http://jacekbilski.blogspot.com/](http://jacekbilski.blogspot.ch/)
