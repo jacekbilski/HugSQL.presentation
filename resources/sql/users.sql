@@ -1,6 +1,5 @@
 -- :name create-users-table
 -- :command :execute
--- :result :raw
 CREATE TABLE IF NOT EXISTS users (
   id                BIGSERIAL PRIMARY KEY,
   first_name        VARCHAR(50),

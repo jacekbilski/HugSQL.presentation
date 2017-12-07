@@ -25,6 +25,8 @@ surprise ;)
 
 ### Import
 
+<br>
+
 In `project.clj`:
 
 ```clojure
@@ -44,8 +46,6 @@ plus something like
 
 In, say, `resources/sql/users.sql`:
 
-<br>
-
 ```sql
 -- :name all-users :?
 SELECT *
@@ -58,8 +58,6 @@ FROM users;
 <br>
 
 In, say, `src/app/db/users.clj`:
-
-<br>
 
 ```clojure
 (ns app.db.users
@@ -74,8 +72,6 @@ In, say, `src/app/db/users.clj`:
 <br>
 
 In, say, `src/app.clj`:
-
-<br>
 
 ```clojure
 (ns app
@@ -96,8 +92,171 @@ In, say, `src/app.clj`:
 
 ### Result
 
+<br>
+
 Something like:
 
 ```clojure
 ({:id 1, :first_name Jacek, :last_name Bilski, :registration_date #inst "2017-12-05T16:27:19.828000000-00:00"})
 ```
+
+
+
+## OK, some more details
+
+
+
+## Creating a table broken down
+
+
+### SQL
+
+<br>
+
+```sql
+-- :name create-users-table
+-- :command :execute
+CREATE TABLE IF NOT EXISTS users (
+  id                BIGSERIAL PRIMARY KEY,
+  first_name        VARCHAR(50),
+  last_name         VARCHAR(50),
+  registration_date TIMESTAMP
+);
+```
+
+<br>
+
+We could also replace
+
+```sql
+-- :command :execute
+```
+
+with
+
+```sql
+-- :!
+```
+
+
+### Clojure binding code (again)
+
+<br>
+
+```clojure
+(ns app.db.users
+  (:require [hugsql.core :as hugsql]))
+
+(hugsql/def-db-fns "sql/users.sql" {:quoting :ansi})
+```
+
+
+### Usage
+
+<br>
+
+```clojure
+(users/create-users-table db)
+```
+
+
+
+## Adding new user broken down
+
+
+### SQL
+
+<br>
+
+```sql
+-- :name add-user :!
+INSERT INTO users (first_name, last_name, registration_date)
+VALUES (:first-name, :last-name, :registration-date);
+```
+
+
+### SQL with `RETURNING`
+
+<br>
+
+```sql
+-- :name add-user :<! :1
+INSERT INTO users (first_name, last_name, registration_date)
+VALUES (:first-name, :last-name, :registration-date)
+RETURNING id;
+```
+
+<br>
+
+I replaced
+
+```sql
+-- :!
+```
+
+with
+
+```sql
+-- :<! :1
+```
+
+to get the ID. Might have also used
+
+```sql
+-- :returning-execute :one
+```
+
+
+### Clojure binding code (again, still no changes)
+
+<br>
+
+```clojure
+(ns app.db.users
+  (:require [hugsql.core :as hugsql]))
+
+(hugsql/def-db-fns "sql/users.sql" {:quoting :ansi})
+```
+
+
+### Usage
+
+<br>
+
+```clojure
+(users/add-user db {:first-name "Jacek", :last-name "Bilski", :registration-date (Timestamp/from (Instant/now))})
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Commands
+
+<br>
+
++ `:query` or `:?` - query, returns something (default)
++ `:execute` or `:!` - any statement
++ `:returning-execute` or `:<!` - support for `INSERT INTO ... RETURNING`
++ `:insert` or `:i!` - support for insert and JDBC `.getGeneratedKeys`
+
+
+### Result
+
+<br>
+
++ `:one` or `:1` - one row as a hash-map
++ `:many` or `:*` - many rows as a vector of hash-maps
++ `:affected` or `:n` - number of rows affected (inserted/updated/deleted)
++ `:raw` - passthrough an untouched result (default)
