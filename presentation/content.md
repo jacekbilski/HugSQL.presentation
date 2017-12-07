@@ -126,13 +126,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 <br>
 
-We could also replace
-
-```sql
--- :command :execute
-```
-
-with
+Shorter form:
 
 ```sql
 -- :!
@@ -180,30 +174,16 @@ VALUES (:first-name, :last-name, :registration-date);
 <br>
 
 ```sql
--- :name add-user :<! :1
+-- :name add-user :returning-execute :one
 INSERT INTO users (first_name, last_name, registration_date)
 VALUES (:first-name, :last-name, :registration-date)
 RETURNING id;
 ```
 
-<br>
-
-I replaced
-
-```sql
--- :!
-```
-
-with
+Shorter form:
 
 ```sql
 -- :<! :1
-```
-
-to get the ID. Might have also used
-
-```sql
--- :returning-execute :one
 ```
 
 
@@ -228,6 +208,49 @@ to get the ID. Might have also used
 ```
 
 
+
+## Parameter passing
+
+
+### Simple
+
+<br>
+
+SQL:
+
+```sql
+-- :name add-user :!
+INSERT INTO users (first_name, last_name, registration_date)
+VALUES (:first-name, :last-name, :registration-date);
+```
+
+Clojure:
+
+```clojure
+(users/add-user db {:first-name "Jacek", :last-name "Bilski", :registration-date (Timestamp/from (Instant/now))})
+```
+
+
+### Deep
+
+<br>
+
+SQL:
+
+```sql
+-- :name add-with-address :!
+INSERT INTO users (first_name, last_name, street, zip, city)
+VALUES (:first-name, :last-name, :address.street, :address.zip, :address.city);
+```
+
+Clojure:
+
+```clojure
+(users/add-with-address db {
+    :first-name "Jacek", 
+    :last-name "Bilski", 
+    :address {:street "Kreuzstr. 16", :zip "80331", :city "München"}})
+```
 
 
 
