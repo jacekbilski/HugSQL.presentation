@@ -1,18 +1,34 @@
-## **HugSQL** for accessing RDBMS'
+### **HugSQL** for accessing RDBMS'
 
 <br>
 
-### a.k.a. there's life beyond Datomic
+#### a.k.a. there's life beyond Datomic
 
 
 
-## Highlights
+### About me
+
+<br>
+
+Jacek Bilski
+
+<br>
+
+Consultant @ <img src="innoQ.svg" alt="innoQ" style="transform: translateY(25px);">
+
+<br>
+
+[http://jacekbilski.blogspot.com/](http://jacekbilski.blogspot.com/)
 
 
-### You write your queries in SQL
+
+### Highlights
 
 
-### They show up in Clojure code as functions
+#### You write your queries in SQL
+
+
+#### They show up in Clojure code as functions
 
 <br>
 
@@ -20,10 +36,10 @@ surprise ;)
 
 
 
-## Crash course
+### Crash course
 
 
-### Import
+#### Import
 
 <br>
 
@@ -40,7 +56,7 @@ plus something like
 ```
 
 
-### Write your queries
+#### Write your queries
 
 <br>
 
@@ -53,7 +69,7 @@ FROM users;
 ```
 
 
-### Clojure binding code
+#### Clojure binding code
 
 <br>
 
@@ -67,7 +83,7 @@ In, say, `src/app/db/users.clj`:
 ```
 
 
-### Use
+#### Use
 
 <br>
 
@@ -75,67 +91,59 @@ In, say, `src/app.clj`:
 
 ```clojure
 (ns app
-  (:gen-class)
   (:require [app.db.users :as users]))
 
-(def db
-  {:dbtype "postgresql"
-   :dbname "dbname"
-   :user "dbuser"
-   :password "pass"})
+(def db {:dbtype "postgresql"
+         :dbname "dbname"
+         :user "dbuser"
+         :password "pass"})
 
-(defn -main
-  [& args]
-  (println (users/all-users db)))
+(println (users/all-users db))
 ```
 
 
-### Result
+#### Result
 
 <br>
 
 Something like:
 
 ```clojure
-({:id 1, :first_name Jacek, :last_name Bilski, :registration_date #inst "2017-12-05T16:27:19.828000000-00:00"})
+({:id 1, 
+  :first_name Jacek, 
+  :last_name Bilski, 
+  :reg_date #inst "2017-12-05T16:27:19"})
 ```
 
 
 
-## OK, some more details
+### OK, some more details
 
 
 
-## Creating a table broken down
+### Creating a table broken down
 
 
-### SQL
+#### SQL
 
-<br>
+```sql
+-- :name create-users-table :!
+CREATE TABLE IF NOT EXISTS users (
+  id         BIGSERIAL PRIMARY KEY,
+  first_name VARCHAR(50),
+  last_name  VARCHAR(50),
+  reg_date   TIMESTAMP);
+```
+
+Longer form:
 
 ```sql
 -- :name create-users-table
 -- :command :execute
-CREATE TABLE IF NOT EXISTS users (
-  id                BIGSERIAL PRIMARY KEY,
-  first_name        VARCHAR(50),
-  last_name         VARCHAR(50),
-  registration_date TIMESTAMP
-);
-```
-
-<br>
-
-Shorter form:
-
-```sql
--- :!
 ```
 
 
-### Clojure binding code (again)
-
-<br>
+#### Clojure binding code (again)
 
 ```clojure
 (ns app.db.users
@@ -145,51 +153,59 @@ Shorter form:
 ```
 
 
-### Usage
+#### Usage
 
-<br>
+Import:
+```clojure
+(ns app
+  (:require [app.db.users :as users]))
+```
 
+Define database:
+```clojure
+(def db {:dbtype "postgresql"
+         :dbname "dbname"
+         :user "dbuser"
+         :password "pass"})
+```
+
+Use:
 ```clojure
 (users/create-users-table db)
 ```
 
 
 
-## Adding new user broken down
+### Adding new user broken down
 
 
-### SQL
-
-<br>
+#### SQL
 
 ```sql
 -- :name add-user :!
-INSERT INTO users (first_name, last_name, registration_date)
-VALUES (:first-name, :last-name, :registration-date);
+INSERT INTO users (first_name, last_name, reg_date)
+VALUES (:first-name, :last-name, :reg-date);
 ```
 
 
-### SQL with `RETURNING`
-
-<br>
+#### SQL with `RETURNING`
 
 ```sql
--- :name add-user :returning-execute :one
-INSERT INTO users (first_name, last_name, registration_date)
-VALUES (:first-name, :last-name, :registration-date)
+-- :name add-user :<! :1
+INSERT INTO users (first_name, last_name, reg_date)
+VALUES (:first-name, :last-name, :reg-date)
 RETURNING id;
 ```
 
-Shorter form:
+Longer form:
 
 ```sql
--- :<! :1
+-- :name add-user
+-- :returning-execute :one
 ```
 
 
-### Clojure binding code (again, still no changes)
-
-<br>
+#### Clojure binding code (still no changes)
 
 ```clojure
 (ns app.db.users
@@ -199,75 +215,74 @@ Shorter form:
 ```
 
 
-### Usage
-
-<br>
+#### Usage
 
 ```clojure
-(users/add-user db {:first-name "Jacek", :last-name "Bilski", :registration-date (Timestamp/from (Instant/now))})
+(users/add-user db 
+  {:first-name "Jacek"
+   :last-name "Bilski"
+   :reg-date (Timestamp/from (Instant/now))})
 ```
 
 
 
-## Parameter passing
+### Parameter passing
 
 
-### Simple
-
-<br>
+#### Simple
 
 SQL:
 
 ```sql
 -- :name add-user :!
-INSERT INTO users (first_name, last_name, registration_date)
-VALUES (:first-name, :last-name, :registration-date);
+INSERT INTO users (first_name, last_name, reg_date)
+VALUES (:first-name, :last-name, :reg-date);
 ```
 
 Clojure:
 
 ```clojure
-(users/add-user db {:first-name "Jacek", :last-name "Bilski", :registration-date (Timestamp/from (Instant/now))})
+(users/add-user db 
+  {:first-name "Jacek"
+   :last-name "Bilski"
+   :reg-date (Timestamp/from (Instant/now))})
 ```
 
 
-### Deep
-
-<br>
+#### Deep
 
 SQL:
 
 ```sql
 -- :name add-with-address :!
 INSERT INTO users (first_name, last_name, street, zip, city)
-VALUES (:first-name, :last-name, :address.street, :address.zip, :address.city);
+VALUES (:first-name, :last-name,
+  :address.street, :address.zip, :address.city);
 ```
 
 Clojure:
 
 ```clojure
 (users/add-with-address db {
-    :first-name "Jacek", 
-    :last-name "Bilski", 
-    :address {:street "Kreuzstr. 16", :zip "80331", :city "München"}})
+    :first-name "Jacek"
+    :last-name "Bilski"
+    :address {:street "Kreuzstr. 16"
+              :zip "80331"
+              :city "München"}})
 ```
 
 
 
-## Queries
+### Queries
 
 
-### Single row
-
-<br>
+#### Single row
 
 SQL:
 
 ```sql
 -- :name find-by-id :? :1
-SELECT *
-FROM users 
-WHERE id = :id;
+SELECT * FROM users WHERE id = :id;
 ```
 
 Clojure:
@@ -279,20 +294,20 @@ Clojure:
 Result:
 
 ```clojure
-({:id 1, :first_name Jacek, :last_name Bilski, :registration_date #inst "2017-12-05T16:27:19.828000000-00:00"})
+({:id 1, 
+  :first_name Jacek, 
+  :last_name Bilski, 
+  :reg_date #inst "2017-12-05T16:27:19"})
 ```
 
 
-### Multiple rows
-
-<br>
+#### Multiple rows
 
 SQL:
 
 ```sql
 -- :name all-users :? :*
-SELECT *
-FROM users;
+SELECT * FROM users;
 ```
 
 Clojure:
@@ -301,20 +316,27 @@ Clojure:
 (println (users/all-users db))
 ```
 
+
+#### Multiple rows
+
 Result:
 
 ```clojure
-({:id 1, :first_name Jacek, :last_name Bilski, :registration_date #inst "2017-12-07T22:01:06.899000000-00:00", 
-    :street nil, :zip nil, :city nil}
-{:id 2, :first_name Jacek, :last_name Bilski, :registration_date nil, 
-    :street Kreuzstr. 16, :zip 80331, :city München})
+({:id 1, 
+  :first_name Jacek, 
+  :last_name Bilski, 
+  :reg_date #inst "2017-12-07T22:01:06", 
+  :street nil, :zip nil, :city nil}
+{:id 2, 
+  :first_name Jan, 
+  :last_name Stępień, 
+  :reg_date nil, 
+  :street Kreuzstr. 16, :zip 80331, :city München})
 ```
 
 
 
-### Transactions
-
-<br>
+#### Transactions
 
 Second parameter can be:
 
@@ -323,19 +345,19 @@ Second parameter can be:
 + db connection pool
 + transaction object
 
-<br>
-
 For example:
 
-```sql
+```clojure
 (clojure.java.jdbc/with-db-transaction [tx db]
-  (users/add-user tx {:first-name "Jacek", :last-name "Bilski", :registration-date nil})
-  (users/add-user tx {:first-name "Jan", :last-name "Stępień", :registration-date nil}))
+  (users/add-user tx 
+    {:first-name "Jacek", :last-name "Bilski", :reg-date nil})
+  (users/add-user tx 
+    {:first-name "Jan", :last-name "Stępień", :reg-date nil}))
 ```
 
 
 
-## And many more
+### And many more
 
 <br>
 
@@ -348,7 +370,7 @@ For example:
 
 
 
-## About
+### About
 
 <br>
 
@@ -360,4 +382,4 @@ HugSQL, [https://www.hugsql.org/](https://www.hugsql.org/)
 
 Author:
 
-Jacek Bilski, [http://jacekbilski.blogspot.com/](http://jacekbilski.blogspot.ch/)
+Jacek Bilski, [http://jacekbilski.blogspot.com/](http://jacekbilski.blogspot.com/)
